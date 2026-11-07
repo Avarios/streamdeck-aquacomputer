@@ -4,7 +4,7 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/), versions follow [SemVer](https://semver.org/)
 (the manifest uses the four-part form `MAJOR.MINOR.PATCH.0`).
 
-## [1.1.0] - Unreleased
+## [1.0.2] - 2026-11-07
 
 ### Added
 - Optional **LibreHardwareMonitor** integration (off by default): when enabled and LHM's web server is running,
@@ -16,7 +16,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/), versions fol
 ### Changed
 - Long labels are drawn with a smaller font so sensor names fit on the key.
 
-## [1.0.0]
+### Fixed
+- CI: removed the npm cache option that required a `package-lock.json`.
+
+### Other
+- Release workflow can also be started manually (Actions → Release → Run workflow).
+
+## [1.0.1] - 2026-11-07
+
+### Changed
+- New plugin and category icons (water drop with fan), new Fan / Pump and Flow action icons.
+- Icons moved from `imgs/` to `assets/`; screenshots for the Marketplace added.
+
+## [1.0.0] - 2026-11-07
 
 First public release.
 
