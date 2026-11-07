@@ -62,7 +62,7 @@ src/history.ts         ring buffers (30 min at 1 sample/s) for the graphs
 src/catalog.ts         lists for the property inspectors, built from the live report
 src/render.ts          SVG key rendering
 src/actions/*.ts       Temperature / Fan / Flow / Rotation actions
-com.avarios.aquars.sdPlugin/   manifest, property inspectors (ui/), icons (imgs/)
+com.avarios.aquars.sdPlugin/   manifest, property inspectors (ui/), icons (assets/)
 docs/PROTOCOL.md       what is known about the Quadro live report
 ```
 

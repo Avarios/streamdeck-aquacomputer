@@ -4,11 +4,11 @@
   "Name": "Aquars Quadro",
   "Version": "1.0.0.0",
   "Author": "Avarios",
-  "URL": "https://github.com/Avarios/streamdeck-quadro",
+  "URL": "https://github.com/Avarios/streamdeck-aquacomputer",
   "Description": "Live Aquacomputer Quadro values on your Stream Deck: temperatures, fan/pump RPM, power and flow, with history graphs. Unofficial; currently tested only with the Aquacomputer Quadro.",
   "Category": "Aquars Quadro",
-  "CategoryIcon": "imgs/plugin/category-icon",
-  "Icon": "imgs/plugin/marketplace",
+  "CategoryIcon": "assets/plugin/category-icon",
+  "Icon": "assets/plugin/marketplace",
   "CodePath": "bin/plugin.js",
   "SDKVersion": 3,
   "Software": {
@@ -28,7 +28,7 @@
       "UUID": "com.avarios.aquars.temperature",
       "Name": "Temperature",
       "Tooltip": "Shows a temperature sensor of the Aquacomputer Quadro (sensor 1-4 or virtual sensor).",
-      "Icon": "imgs/actions/temperature/icon",
+      "Icon": "assets/actions/temperature/icon",
       "Controllers": [
         "Keypad",
         "Encoder"
@@ -36,20 +36,20 @@
       "PropertyInspectorPath": "ui/temperature.html",
       "States": [
         {
-          "Image": "imgs/actions/temperature/key",
+          "Image": "assets/actions/temperature/key",
           "ShowTitle": false
         }
       ],
       "Encoder": {
         "layout": "layouts/canvas.json",
-        "Icon": "imgs/actions/temperature/icon"
+        "Icon": "assets/actions/temperature/icon"
       }
     },
     {
       "UUID": "com.avarios.aquars.fan",
       "Name": "Fan / Pump",
       "Tooltip": "Shows RPM, output percent or power of a Quadro fan/pump channel. Press to cycle the view.",
-      "Icon": "imgs/actions/fan/icon",
+      "Icon": "assets/actions/fan/icon",
       "Controllers": [
         "Keypad",
         "Encoder"
@@ -57,13 +57,13 @@
       "PropertyInspectorPath": "ui/fan.html",
       "States": [
         {
-          "Image": "imgs/actions/fan/key",
+          "Image": "assets/actions/fan/key",
           "ShowTitle": false
         }
       ],
       "Encoder": {
         "layout": "layouts/canvas.json",
-        "Icon": "imgs/actions/fan/icon",
+        "Icon": "assets/actions/fan/icon",
         "TriggerDescription": {
           "Rotate": "Switch RPM / % / W",
           "Push": "Switch RPM / % / W",
@@ -75,7 +75,7 @@
       "UUID": "com.avarios.aquars.flow",
       "Name": "Flow",
       "Tooltip": "Shows the flow rate of the Quadro flow sensor in l/h.",
-      "Icon": "imgs/actions/flow/icon",
+      "Icon": "assets/actions/flow/icon",
       "Controllers": [
         "Keypad",
         "Encoder"
@@ -83,20 +83,20 @@
       "PropertyInspectorPath": "ui/flow.html",
       "States": [
         {
-          "Image": "imgs/actions/flow/key",
+          "Image": "assets/actions/flow/key",
           "ShowTitle": false
         }
       ],
       "Encoder": {
         "layout": "layouts/canvas.json",
-        "Icon": "imgs/actions/flow/icon"
+        "Icon": "assets/actions/flow/icon"
       }
     },
     {
       "UUID": "com.avarios.aquars.rotate",
       "Name": "Rotation",
       "Tooltip": "Cycles through all Quadro values (temperatures, fans, flow, voltage). Press to skip to the next.",
-      "Icon": "imgs/actions/rotate/icon",
+      "Icon": "assets/actions/rotate/icon",
       "Controllers": [
         "Keypad",
         "Encoder"
@@ -104,13 +104,13 @@
       "PropertyInspectorPath": "ui/rotate.html",
       "States": [
         {
-          "Image": "imgs/actions/rotate/key",
+          "Image": "assets/actions/rotate/key",
           "ShowTitle": false
         }
       ],
       "Encoder": {
         "layout": "layouts/canvas.json",
-        "Icon": "imgs/actions/rotate/icon",
+        "Icon": "assets/actions/rotate/icon",
         "TriggerDescription": {
           "Rotate": "Previous / next value",
           "Push": "Next value",
