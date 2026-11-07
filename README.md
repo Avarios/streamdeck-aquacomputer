@@ -25,6 +25,7 @@ fan / pump speed, output percent, power draw and flow rate - with a history grap
 - Works on **keys** and on the **Stream Deck + touch strip / dials** (press, tap or turn to switch the value).
 - Translucent **history graph** behind the value (1 / 5 / 15 / 30 min; kept in memory, starts empty after a restart).
 - Dropdowns only list what is actually connected, with live readings next to each entry.
+- **Several Quadros:** every key can be bound to a specific device by serial number (see below).
 - Shows `n/a` when no Quadro is found or no data arrives for 5 s, and reconnects automatically.
 - Read-only: the plugin never writes anything to the device.
 
@@ -46,6 +47,18 @@ The option is **off by default**; without it the plugin works exactly as before.
 
 While LibreHardwareMonitor is not reachable, PC Sensor keys show `n/a` (Quadro keys are not affected) and the
 plugin retries every 5 s. The PC sensor feature works without a Quadro, too.
+
+## Several Quadros
+
+The plugin finds every Quadro by its USB IDs (VID `0x0C70`, PID `0xF00D`) on any USB port and opens all of them.
+Each Temperature, Fan / Pump, Flow and Rotation key has a **Quadro** dropdown:
+
+- **Automatic** (default) uses the Quadro with the lowest serial number - always the same one, no matter in which
+  order Windows reports the devices. With a single Quadro you don't need to change anything.
+- Pick a **serial number** to bind the key to that device. The dropdown shows a temperature and the flow next to each
+  serial to tell the devices apart; the serial is also shown in Aquasuite.
+
+If the chosen Quadro is unplugged, the key shows `n/a` / "not found" until it is back. Graphs are kept per device.
 
 ## Naming sensors and fans
 
@@ -93,7 +106,8 @@ Project layout:
 
 ```text
 src/status.ts          report parser (pure, tested)
-src/quadro.ts          node-hid connection, auto-reconnect, "status"/"state" events
+src/quadro.ts          finds all Quadros, one node-hid connection each, auto-reconnect
+src/devices.ts         device selection by serial number (pure, tested)
 src/history.ts         ring buffers (30 min at 1 sample/s) for the graphs
 src/lhm.ts             optional LibreHardwareMonitor client (data.json parser + poller)
 src/catalog.ts         lists for the property inspectors, built from the live report

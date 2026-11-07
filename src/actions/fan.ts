@@ -3,10 +3,11 @@ import { COLORS, num, type KeyView } from "../render.ts";
 import type { QuadroStatus } from "../status.ts";
 import { graphSeries, type GraphSettings } from "../graph.ts";
 import { seriesKey } from "../history.ts";
+import { deviceScope, type DeviceSettings } from "../devices.ts";
 import { LiveAction } from "./live-action.ts";
 
 type Mode = "rpm" | "percent" | "power";
-type Settings = GraphSettings & { fan?: string; mode?: Mode; label?: string; minRpm?: string };
+type Settings = GraphSettings & DeviceSettings & { fan?: string; mode?: Mode; label?: string; minRpm?: string };
 
 const MODES: Mode[] = ["rpm", "percent", "power"];
 
@@ -41,7 +42,7 @@ export class FanAction extends LiveAction<Settings> {
     const stalled = minRpm !== undefined && fan.rpm < minRpm;
     const color = stalled ? COLORS.warn : COLORS.ok;
 
-    const series = graphSeries(seriesKey.fan(idx + 1, mode), s);
+    const series = graphSeries(seriesKey.fan(idx + 1, mode), s, deviceScope(st!));
     switch (mode) {
       case "percent":
         return { series, minSpan: 10, label, value: fan.pwmPercent.toFixed(1), unit: "%", sub: `${fan.rpm} rpm`, color };

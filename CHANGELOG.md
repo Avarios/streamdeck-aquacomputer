@@ -4,6 +4,18 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/), versions follow [SemVer](https://semver.org/)
 (the manifest uses the four-part form `MAJOR.MINOR.PATCH.0`).
 
+## [1.0.3] - 2026-11-07
+
+### Added
+- **Several Quadros:** all connected Quadros are opened; every Quadro key has a new *Quadro* dropdown to bind it to
+  a device by serial number. Graphs are kept per device.
+
+### Changed
+- "Automatic" now always uses the Quadro with the lowest serial number instead of whichever device Windows lists
+  first.
+- HID interfaces of the Quadro that send no status report are ignored for a minute instead of being reopened
+  continuously.
+
 ## [1.0.2] - 2026-11-07
 
 ### Added

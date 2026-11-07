@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { deviceScope } from "../src/devices.ts";
 import { History, recordStatus, seriesKey } from "../src/history.ts";
 import { renderKey } from "../src/render.ts";
 import { parseStatus } from "../src/status.ts";
@@ -18,10 +19,13 @@ test("recordStatus skips disconnected sensors", () => {
   const st = parseStatus(Uint8Array.from(Buffer.from(hex.replace(/\s+/g, ""), "hex")));
   const h = new History();
   recordStatus(h, st);
-  assert.deepEqual(h.get(seriesKey.temp(1), 9), [26.45]);
-  assert.deepEqual(h.get(seriesKey.temp(4), 9), []);
-  assert.deepEqual(h.get(seriesKey.fan(1, "rpm"), 9), [2423]);
-  assert.deepEqual(h.get(seriesKey.flow, 9), [108.2]);
+  const p = deviceScope(st); // per-device prefix
+  assert.equal(p, "q:00001-00002/");
+  assert.deepEqual(h.get(p + seriesKey.temp(1), 9), [26.45]);
+  assert.deepEqual(h.get(p + seriesKey.temp(4), 9), []);
+  assert.deepEqual(h.get(p + seriesKey.fan(1, "rpm"), 9), [2423]);
+  assert.deepEqual(h.get(p + seriesKey.flow, 9), [108.2]);
+  assert.deepEqual(h.get(seriesKey.flow, 9), []); // unscoped keys belong to nobody
 });
 
 test("renderKey draws the graph only with at least 2 samples", () => {

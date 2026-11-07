@@ -42,7 +42,7 @@ export class RotateAction extends LiveAction<RotateSettings> {
 
   /** Quadro values (while connected) followed by the selected PC sensors (while LHM is reachable). */
   private items(s: RotateSettings): KeyView[] {
-    const st = quadro.state === "ok" ? quadro.status : undefined;
+    const st = quadro.resolve(s.device).status;
     const pc = lhm.state === "ok" ? lhm.sensors : undefined;
     return buildItems(s, st, pc);
   }
@@ -50,7 +50,8 @@ export class RotateAction extends LiveAction<RotateSettings> {
   protected override current(s: RotateSettings, id: string): KeyView {
     const items = this.items(s);
     if (items.length === 0) {
-      if (quadro.state !== "ok") return offlineView("Quadro", quadro.error || "connecting");
+      const { status, error } = quadro.resolve(s.device);
+      if (!status) return offlineView("Quadro", error);
       return { label: "Quadro", value: "--", sub: "nothing selected", color: COLORS.idle };
     }
     const c = this.cursor(id);

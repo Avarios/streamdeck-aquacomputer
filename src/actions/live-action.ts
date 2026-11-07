@@ -1,5 +1,6 @@
 import streamDeck, { SingletonAction, type DialAction, type KeyAction } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
+import type { DeviceSettings } from "../devices.ts";
 import { quadro } from "../quadro.ts";
 import { offlineView, renderDial, renderKey, type KeyView } from "../render.ts";
 import type { QuadroStatus } from "../status.ts";
@@ -69,13 +70,12 @@ export abstract class LiveAction<S extends JsonObject> extends SingletonAction<S
   }
 
   /**
-   * The view to draw right now. Default: offline view while the Quadro is not connected.
+   * The view to draw right now. Default: the Quadro chosen in the settings ("device"), offline view while it is not connected.
    * Actions with other data sources (PC sensors) override this.
    */
   protected current(settings: S, id: string): KeyView {
-    return quadro.state === "ok" && quadro.status
-      ? this.view(settings, quadro.status, id)
-      : offlineView(this.defaultLabel(settings), quadro.error || "connecting");
+    const { status, error } = quadro.resolve((settings as DeviceSettings).device);
+    return status ? this.view(settings, status, id) : offlineView(this.defaultLabel(settings), error);
   }
 
   /** Hook for subclasses to drop per-key state. */

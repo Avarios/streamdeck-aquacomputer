@@ -3,9 +3,10 @@ import { COLORS, num, type KeyView } from "../render.ts";
 import type { QuadroStatus } from "../status.ts";
 import { graphSeries, type GraphSettings } from "../graph.ts";
 import { seriesKey } from "../history.ts";
+import { deviceScope, type DeviceSettings } from "../devices.ts";
 import { LiveAction } from "./live-action.ts";
 
-type Settings = GraphSettings & { label?: string; minFlow?: string };
+type Settings = GraphSettings & DeviceSettings & { label?: string; minFlow?: string };
 
 @action({ UUID: "com.avarios.aquars.flow" })
 export class FlowAction extends LiveAction<Settings> {
@@ -17,7 +18,7 @@ export class FlowAction extends LiveAction<Settings> {
     const flow = st?.flowLPerH ?? 0;
     const min = num(s.minFlow);
     return {
-      series: graphSeries(seriesKey.flow, s),
+      series: st ? graphSeries(seriesKey.flow, s, deviceScope(st)) : undefined,
       minSpan: 10,
       label: this.defaultLabel(s),
       value: flow.toFixed(1),

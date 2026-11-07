@@ -1,4 +1,5 @@
 import { formatLhm, type LhmSensor, type LhmState } from "./lhm.ts";
+import { sortDevices } from "./devices.ts";
 import type { QuadroStatus } from "./status.ts";
 
 /** One entry of a property-inspector list (sdpi-components "datasource" item). */
@@ -19,6 +20,8 @@ export const DATASOURCE = {
   values: "getValues",
   sensors: "getSensors",
   fans: "getFans",
+  /** connected Quadros (device dropdown) */
+  devices: "getDevices",
   /** PC sensors grouped by hardware (dropdown) */
   pcSensors: "getPcSensors",
   /** PC sensors as flat list (checkbox list of the rotation) */
@@ -123,8 +126,30 @@ export function pcSensorList(pc?: PcSource): CatalogItem[] {
   return pc!.sensors.map((s) => item(s.id, `${s.hardware} › ${s.type}: ${s.name} – ${pcValue(s)}`));
 }
 
+/**
+ * Device dropdown: "Automatic" (= lowest serial number) plus every connected Quadro with a few live
+ * values to tell them apart. A configured but missing device stays selectable ("not connected").
+ */
+export function deviceCatalog(online: QuadroStatus[], current?: string): CatalogItem[] {
+  const sorted = sortDevices(online);
+  const out = [item("", sorted[0] ? `Automatic – Quadro ${sorted[0].serial}` : "Automatic (first Quadro found)")];
+  for (const st of sorted) {
+    const t = st.temps.find((x) => x !== null);
+    const hint = [t != null ? fmtT(t) : "", `${st.flowLPerH.toFixed(0)} l/h`].filter(Boolean).join(", ");
+    out.push(item(st.serial, `Quadro ${st.serial} – ${hint}`));
+  }
+  const wanted = (current ?? "").trim();
+  if (wanted && !sorted.some((s) => s.serial === wanted)) out.push(item(wanted, `Quadro ${wanted} – not connected`));
+  return out;
+}
+
 /** Items for a property-inspector request, or undefined if the event is not ours. */
-export function catalogFor(event: string, st?: QuadroStatus, pc?: PcSource): CatalogEntry[] | undefined {
+export function catalogFor(
+  event: string,
+  st?: QuadroStatus,
+  pc?: PcSource,
+  devices?: { online: QuadroStatus[]; current?: string },
+): CatalogEntry[] | undefined {
   switch (event) {
     case DATASOURCE.values:
       return valueCatalog(st);
@@ -132,6 +157,8 @@ export function catalogFor(event: string, st?: QuadroStatus, pc?: PcSource): Cat
       return temperatureSensors(st);
     case DATASOURCE.fans:
       return fanChannels(st);
+    case DATASOURCE.devices:
+      return deviceCatalog(devices?.online ?? (st ? [st] : []), devices?.current);
     case DATASOURCE.pcSensors:
       return pcSensorGroups(pc);
     case DATASOURCE.pcSensorList:

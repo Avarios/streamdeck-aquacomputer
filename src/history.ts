@@ -1,4 +1,5 @@
 import type { LhmSensor } from "./lhm.ts";
+import { deviceScope } from "./devices.ts";
 import type { QuadroStatus } from "./status.ts";
 
 /** Ring buffers of recent samples per series (one sample per status report, ~1/s). */
@@ -37,20 +38,22 @@ export const seriesKey = {
   lhm: (id: string) => `lhm:${id}`,
 } as const;
 
+/** Records one report; keys are prefixed with the device scope so several Quadros keep separate graphs. */
 export function recordStatus(h: History, st: QuadroStatus): void {
+  const p = deviceScope(st);
   st.temps.forEach((t, i) => {
-    if (t !== null) h.push(seriesKey.temp(i + 1), t);
+    if (t !== null) h.push(p + seriesKey.temp(i + 1), t);
   });
   st.virtualTemps.forEach((t, i) => {
-    if (t !== null) h.push(seriesKey.virt(i + 1), t);
+    if (t !== null) h.push(p + seriesKey.virt(i + 1), t);
   });
   st.fans.forEach((f, i) => {
-    h.push(seriesKey.fan(i + 1, "rpm"), f.rpm);
-    h.push(seriesKey.fan(i + 1, "percent"), f.pwmPercent);
-    h.push(seriesKey.fan(i + 1, "power"), f.powerW);
+    h.push(p + seriesKey.fan(i + 1, "rpm"), f.rpm);
+    h.push(p + seriesKey.fan(i + 1, "percent"), f.pwmPercent);
+    h.push(p + seriesKey.fan(i + 1, "power"), f.powerW);
   });
-  h.push(seriesKey.flow, st.flowLPerH);
-  h.push(seriesKey.voltage, st.inputVoltageV);
+  h.push(p + seriesKey.flow, st.flowLPerH);
+  h.push(p + seriesKey.voltage, st.inputVoltageV);
 }
 
 /** One sample per LibreHardwareMonitor poll (~1/s) for every sensor with a reading. */

@@ -3,9 +3,10 @@ import { COLORS, num, type KeyView } from "../render.ts";
 import type { QuadroStatus } from "../status.ts";
 import { graphSeries, type GraphSettings } from "../graph.ts";
 import { seriesKey } from "../history.ts";
+import { deviceScope, type DeviceSettings } from "../devices.ts";
 import { LiveAction } from "./live-action.ts";
 
-type Settings = GraphSettings & { sensor?: string; label?: string; warn?: string; fahrenheit?: boolean };
+type Settings = GraphSettings & DeviceSettings & { sensor?: string; label?: string; warn?: string; fahrenheit?: boolean };
 
 @action({ UUID: "com.avarios.aquars.temperature" })
 export class TemperatureAction extends LiveAction<Settings> {
@@ -30,7 +31,7 @@ export class TemperatureAction extends LiveAction<Settings> {
     const value = s.fahrenheit ? c * 1.8 + 32 : c;
     const f = (v: number) => (s.fahrenheit ? v * 1.8 + 32 : v);
     return {
-      series: graphSeries(virtual ? seriesKey.virt(n) : seriesKey.temp(n), s)?.map(f),
+      series: graphSeries(virtual ? seriesKey.virt(n) : seriesKey.temp(n), s, deviceScope(st!))?.map(f),
       minSpan: s.fahrenheit ? 3.6 : 2,
       label,
       value: value.toFixed(1),

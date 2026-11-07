@@ -5,6 +5,7 @@ import { PcSensorAction } from "./actions/pc-sensor.ts";
 import { RotateAction } from "./actions/rotate.ts";
 import { TemperatureAction } from "./actions/temperature.ts";
 import { DATASOURCE, catalogFor, type PcSource } from "./catalog.ts";
+import type { DeviceSettings } from "./devices.ts";
 import { history, recordLhm, recordStatus } from "./history.ts";
 import { lhm } from "./lhm.ts";
 import { quadro } from "./quadro.ts";
@@ -29,7 +30,8 @@ quadro.on("status", (st) => {
   refresh();
 });
 quadro.on("state", (state: string) => {
-  streamDeck.logger.info(`Quadro state: ${state}${quadro.error ? ` (${quadro.error})` : ""}`);
+  const online = quadro.online().map((s) => s.serial).join(", ");
+  streamDeck.logger.info(`Quadro state: ${state}${online ? ` [${online}]` : ""}${quadro.error ? ` (${quadro.error})` : ""}`);
   refresh();
 });
 
@@ -60,14 +62,49 @@ lhm.on("state", (state: string) => {
 const applyGlobals = (g: GlobalSettings) => lhm.configure(g.lhmEnabled === true, typeof g.lhmUrl === "string" ? g.lhmUrl : undefined);
 streamDeck.settings.onDidReceiveGlobalSettings<GlobalSettings>((ev) => applyGlobals(ev.settings));
 
-// Property inspectors ask for their lists (datasource) -> answer from the latest device report / LHM poll
-streamDeck.ui.onSendToPlugin((ev) => {
+// --- Property inspectors ---
+/** Lists that depend on the chosen Quadro (re-sent when the device setting of the open key changes). */
+const QUADRO_LISTS = [DATASOURCE.values, DATASOURCE.sensors, DATASOURCE.fans, DATASOURCE.devices];
+
+const answer = (event: string, settings: DeviceSettings) => {
+  const { status } = quadro.resolve(settings.device);
+  return catalogFor(event, status, pcSource(), { online: quadro.online(), current: settings.device });
+};
+
+// Property inspectors ask for their lists (datasource) -> answer from the latest report of the chosen device / LHM poll
+streamDeck.ui.onSendToPlugin(async (ev) => {
   const payload = ev.payload;
   if (payload === null || typeof payload !== "object" || Array.isArray(payload)) return;
   const event = payload.event;
   if (typeof event !== "string") return;
-  const items = catalogFor(event, quadro.state === "ok" ? quadro.status : undefined, pcSource());
+  let settings: DeviceSettings = {};
+  try {
+    settings = await ev.action.getSettings<DeviceSettings>();
+  } catch {
+    /* use automatic device */
+  }
+  const items = answer(event, settings);
   if (items) void streamDeck.ui.sendToPropertyInspector({ event, items });
+});
+
+// Another Quadro picked in the open property inspector -> refresh its sensor / fan / value lists
+const lastDevice = new Map<string, string>();
+streamDeck.settings.onDidReceiveSettings<DeviceSettings>((ev) => {
+  const device = typeof ev.payload.settings.device === "string" ? ev.payload.settings.device : "";
+  const before = lastDevice.get(ev.action.id);
+  lastDevice.set(ev.action.id, device);
+  if (before === undefined || before === device || streamDeck.ui.action?.id !== ev.action.id) return;
+  for (const event of QUADRO_LISTS) {
+    void streamDeck.ui.sendToPropertyInspector({ event, items: answer(event, ev.payload.settings) ?? [] });
+  }
+});
+streamDeck.ui.onDidAppear<DeviceSettings>(async (ev) => {
+  try {
+    const s = await ev.action.getSettings<DeviceSettings>();
+    lastDevice.set(ev.action.id, typeof s.device === "string" ? s.device : "");
+  } catch {
+    /* ignore */
+  }
 });
 
 streamDeck.logger.info("Aquars plugin starting");

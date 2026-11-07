@@ -5,8 +5,11 @@
   <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
 </head>
 <body>
+  <sdpi-item label="Quadro">
+    <sdpi-select setting="device" default="" datasource="getDevices" hot-reload loading="Searching Quadros ..." placeholder="Automatic"></sdpi-select>
+  </sdpi-item>
   <sdpi-item label="Channel">
-    <sdpi-select setting="fan" default="1" datasource="getFans" loading="Reading Quadro ..." placeholder="Fan 1"></sdpi-select>
+    <sdpi-select setting="fan" default="1" datasource="getFans" hot-reload loading="Reading Quadro ..." placeholder="Fan 1"></sdpi-select>
   </sdpi-item>
   <sdpi-item label="Show">
     <sdpi-select setting="mode" placeholder="RPM" default="rpm">

@@ -1,10 +1,11 @@
 import { graphSeries, type GraphSettings } from "./graph.ts";
+import { deviceScope, type DeviceSettings } from "./devices.ts";
 import { seriesKey } from "./history.ts";
 import { formatLhm, minSpanFor, type LhmSensor } from "./lhm.ts";
 import { COLORS, num, type KeyView } from "./render.ts";
 import type { QuadroStatus } from "./status.ts";
 
-export type RotateSettings = GraphSettings & {
+export type RotateSettings = GraphSettings & DeviceSettings & {
   /** seconds per value (default 5) */
   interval?: string;
   noTemps?: boolean;
@@ -107,6 +108,7 @@ export function buildItems(s: RotateSettings, st?: QuadroStatus, pc?: LhmSensor[
   const base = selected.length > 0 ? selected : pcIds.length > 0 ? [] : legacyTokens(s);
   const tokens = st ? base.filter((t) => !excluded.has(t)) : [];
   const items: KeyView[] = [];
+  const scope = st ? deviceScope(st) : "";
 
   for (const token of tokens) {
     if (!st) break;
@@ -124,7 +126,7 @@ export function buildItems(s: RotateSettings, st?: QuadroStatus, pc?: LhmSensor[
           label: isTemp ? tempLabels[n - 1] || `Temp ${n}` : `Virtual ${n}`,
           value: t.toFixed(1),
           unit: "°C",
-          series: graphSeries(isTemp ? seriesKey.temp(n) : seriesKey.virt(n), s),
+          series: graphSeries(isTemp ? seriesKey.temp(n) : seriesKey.virt(n), s, scope),
           minSpan: 2,
         });
         break;
@@ -137,18 +139,18 @@ export function buildItems(s: RotateSettings, st?: QuadroStatus, pc?: LhmSensor[
         const kind = m![1];
         items.push(
           kind === "fan"
-            ? { label: fanName, value: String(f.rpm), unit: "rpm", sub: `${f.pwmPercent.toFixed(0)} %`, series: graphSeries(seriesKey.fan(n, "rpm"), s), minSpan: 200 }
+            ? { label: fanName, value: String(f.rpm), unit: "rpm", sub: `${f.pwmPercent.toFixed(0)} %`, series: graphSeries(seriesKey.fan(n, "rpm"), s, scope), minSpan: 200 }
             : kind === "pwm"
-              ? { label: `${fanName} %`, value: f.pwmPercent.toFixed(1), unit: "%", sub: `${f.rpm} rpm`, series: graphSeries(seriesKey.fan(n, "percent"), s), minSpan: 10 }
-              : { label: `${fanName} W`, value: f.powerW.toFixed(2), unit: "W", sub: `${Math.round(f.currentA * 1000)} mA`, series: graphSeries(seriesKey.fan(n, "power"), s), minSpan: 0.5 },
+              ? { label: `${fanName} %`, value: f.pwmPercent.toFixed(1), unit: "%", sub: `${f.rpm} rpm`, series: graphSeries(seriesKey.fan(n, "percent"), s, scope), minSpan: 10 }
+              : { label: `${fanName} W`, value: f.powerW.toFixed(2), unit: "W", sub: `${Math.round(f.currentA * 1000)} mA`, series: graphSeries(seriesKey.fan(n, "power"), s, scope), minSpan: 0.5 },
         );
         break;
       }
       case "flow":
-        items.push({ label: "Flow", value: st.flowLPerH.toFixed(1), unit: "l/h", series: graphSeries(seriesKey.flow, s), minSpan: 10 });
+        items.push({ label: "Flow", value: st.flowLPerH.toFixed(1), unit: "l/h", series: graphSeries(seriesKey.flow, s, scope), minSpan: 10 });
         break;
       case "volt":
-        items.push({ label: "Input", value: st.inputVoltageV.toFixed(2), unit: "V", series: graphSeries(seriesKey.voltage, s), minSpan: 0.5, color: COLORS.ok });
+        items.push({ label: "Input", value: st.inputVoltageV.toFixed(2), unit: "V", series: graphSeries(seriesKey.voltage, s, scope), minSpan: 0.5, color: COLORS.ok });
         break;
     }
   }
