@@ -1,0 +1,8 @@
+{
+  "name": "com.avarios.aquars",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "node-hid": "3.x"
+  }
+}

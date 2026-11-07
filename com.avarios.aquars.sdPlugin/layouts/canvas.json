@@ -1,0 +1,16 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/layout.json",
+  "id": "com.avarios.aquars.canvas",
+  "items": [
+    {
+      "key": "canvas",
+      "type": "pixmap",
+      "rect": [
+        0,
+        0,
+        200,
+        100
+      ]
+    }
+  ]
+}

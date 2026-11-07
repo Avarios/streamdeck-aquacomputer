@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="utf-8" />
+  <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+  <style>details{margin:6px 0 6px 0} summary{cursor:pointer;padding:4px 8px;color:#d8d8d8}</style>
+</head>
+<body>
+  <sdpi-item label="Seconds per value">
+    <sdpi-textfield setting="interval" placeholder="5"></sdpi-textfield>
+  </sdpi-item>
+  <sdpi-item label="Values">
+    <sdpi-textfield setting="values" placeholder="* = everything, or e.g. temp1,fan*,flow"></sdpi-textfield>
+  </sdpi-item>
+  <details>
+    <summary>Pick values from a list ▾</summary>
+    <sdpi-item label="">
+      <sdpi-checkbox-list setting="pick" columns="1" datasource="getValues" loading="Reading Quadro ..."></sdpi-checkbox-list>
+    </sdpi-item>
+  </details>
+  <sdpi-item label="Excludes">
+    <sdpi-textfield setting="exclude" placeholder="e.g. virt*,fan4,pwm*"></sdpi-textfield>
+  </sdpi-item>
+  <details>
+    <summary>Pick excludes from a list ▾</summary>
+    <sdpi-item label="">
+      <sdpi-checkbox-list setting="skip" columns="1" datasource="getValues" loading="Reading Quadro ..."></sdpi-checkbox-list>
+    </sdpi-item>
+  </details>
+  <sdpi-item label="">
+    <small>Text fields accept: temp1-4, virt1-16, fan1-4 (rpm), pwm1-4 (%), power1-4 (W), flow, volt. <b>*</b> = all; <b>fan*</b> = all fans. Ticked boxes and text are combined; excludes always win. If no value is selected, the options below apply.</small>
+  </sdpi-item>
+  <sdpi-item label="Include">
+    <sdpi-checkbox setting="noTemps" label="Hide temperatures"></sdpi-checkbox>
+    <sdpi-checkbox setting="noFans" label="Hide fans / pump"></sdpi-checkbox>
+    <sdpi-checkbox setting="noFlow" label="Hide flow"></sdpi-checkbox>
+    <sdpi-checkbox setting="noVoltage" label="Hide input voltage"></sdpi-checkbox>
+  </sdpi-item>
+  <sdpi-item label="Fan channels">
+    <sdpi-textfield setting="fans" placeholder="1,2,3,4 or *"></sdpi-textfield>
+  </sdpi-item>
+  <sdpi-item label="Temp names">
+    <sdpi-textfield setting="tempLabels" placeholder="Loop out, Before CPU, After CPU"></sdpi-textfield>
+  </sdpi-item>
+  <sdpi-item label="Fan names">
+    <sdpi-textfield setting="fanLabels" placeholder="Pump, MORA, Front"></sdpi-textfield>
+  </sdpi-item>
+  <sdpi-item label="Graph window">
+    <sdpi-select setting="window" placeholder="5 min" default="5">
+      <option value="1">1 min</option><option value="5">5 min</option>
+      <option value="15">15 min</option><option value="30">30 min</option>
+    </sdpi-select>
+  </sdpi-item>
+  <sdpi-item label="Graph">
+    <sdpi-checkbox setting="noGraph" label="Hide background graph"></sdpi-checkbox>
+  </sdpi-item>
+  <p style="opacity:.6;font-size:11px;margin:8px 12px">Unofficial plugin. Currently tested only with the Aquacomputer Quadro.</p>
+</body>
+</html>

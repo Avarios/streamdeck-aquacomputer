@@ -1,0 +1,15 @@
+# Keep the distributed package small: Windows only, no sources, no sourcemaps.
+logs
+*.log
+bin/*.map
+package-lock.json
+node_modules/.package-lock.json
+node_modules/.bin
+node_modules/node-addon-api
+node_modules/node-hid/hidapi
+node_modules/node-hid/src
+node_modules/node-hid/binding.gyp
+node_modules/node-hid/prebuilds/*darwin*
+node_modules/node-hid/prebuilds/*linux*
+node_modules/node-hid/prebuilds/HID-win32-ia32
+node_modules/node-hid/prebuilds/HID-win32-arm64

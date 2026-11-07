@@ -1,0 +1,8 @@
+node_modules/
+com.avarios.aquars.sdPlugin/bin/
+com.avarios.aquars.sdPlugin/node_modules/
+com.avarios.aquars.sdPlugin/logs/
+com.avarios.aquars.sdPlugin/package-lock.json
+*.streamDeckPlugin
+.DS_Store
+Thumbs.db

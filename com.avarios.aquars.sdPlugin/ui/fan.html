@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="utf-8" />
+  <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+</head>
+<body>
+  <sdpi-item label="Channel">
+    <sdpi-select setting="fan" default="1" datasource="getFans" loading="Reading Quadro ..." placeholder="Fan 1"></sdpi-select>
+  </sdpi-item>
+  <sdpi-item label="Show">
+    <sdpi-select setting="mode" placeholder="RPM" default="rpm">
+      <option value="rpm">RPM</option><option value="percent">Output %</option><option value="power">Power (W)</option>
+    </sdpi-select>
+  </sdpi-item>
+  <sdpi-item label="Label">
+    <sdpi-textfield setting="label" placeholder="e.g. Pump"></sdpi-textfield>
+  </sdpi-item>
+  <sdpi-item label="Alarm below (rpm)">
+    <sdpi-textfield setting="minRpm" placeholder="e.g. 1500"></sdpi-textfield>
+  </sdpi-item>
+  <sdpi-item label="Graph window">
+    <sdpi-select setting="window" placeholder="5 min" default="5">
+      <option value="1">1 min</option><option value="5">5 min</option>
+      <option value="15">15 min</option><option value="30">30 min</option>
+    </sdpi-select>
+  </sdpi-item>
+  <sdpi-item label="Graph">
+    <sdpi-checkbox setting="noGraph" label="Hide background graph"></sdpi-checkbox>
+  </sdpi-item>
+  <p style="opacity:.6;font-size:11px;margin:8px 12px">Unofficial plugin. Currently tested only with the Aquacomputer Quadro.</p>
+</body>
+</html>
