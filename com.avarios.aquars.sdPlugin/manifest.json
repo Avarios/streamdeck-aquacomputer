@@ -2,7 +2,7 @@
   "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
   "UUID": "com.avarios.aquars",
   "Name": "Aquars Quadro",
-  "Version": "1.0.0.0",
+  "Version": "1.1.0.0",
   "Author": "Avarios",
   "URL": "https://github.com/Avarios/streamdeck-aquacomputer",
   "Description": "Live Aquacomputer Quadro values on your Stream Deck: temperatures, fan/pump RPM, power and flow, with history graphs. Unofficial; currently tested only with the Aquacomputer Quadro.",
@@ -116,6 +116,27 @@
           "Push": "Next value",
           "Touch": "Next value"
         }
+      }
+    },
+    {
+      "UUID": "com.avarios.aquars.pcsensor",
+      "Name": "PC Sensor",
+      "Tooltip": "Shows a CPU / GPU / mainboard sensor from LibreHardwareMonitor (optional, must be running with its web server enabled).",
+      "Icon": "assets/actions/pcsensor/icon",
+      "Controllers": [
+        "Keypad",
+        "Encoder"
+      ],
+      "PropertyInspectorPath": "ui/pcsensor.html",
+      "States": [
+        {
+          "Image": "assets/actions/pcsensor/key",
+          "ShowTitle": false
+        }
+      ],
+      "Encoder": {
+        "layout": "layouts/canvas.json",
+        "Icon": "assets/actions/pcsensor/icon"
       }
     }
   ]

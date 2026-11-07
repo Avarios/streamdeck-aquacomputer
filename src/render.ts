@@ -17,6 +17,9 @@ export const COLORS = { ok: "#38bdf8", warn: "#f87171", idle: "#94a3b8" };
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
+/** Label font size that keeps longer names (e.g. PC sensors) inside the key. */
+const labelSize = (label: string, base: number) => (label.length > 14 ? base - 6 : label.length > 11 ? base - 3 : base);
+
 const GRAPH = { top: 44, bottom: 136, maxPoints: 96 };
 
 interface Area {
@@ -65,7 +68,7 @@ export function renderKey(v: KeyView): string {
   <rect width="144" height="144" fill="url(#g)"/>
   ${graph ? `<path d="${graph.area}" fill="${color}" fill-opacity="0.22"/><path d="${graph.line}" fill="none" stroke="${color}" stroke-opacity="0.55" stroke-width="2" stroke-linejoin="round"/>` : ""}
   <rect x="0" y="136" width="144" height="8" fill="${color}" opacity="0.8"/>
-  <text x="72" y="30" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#cbd5e1">${esc(v.label)}</text>
+  <text x="72" y="30" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="${labelSize(v.label, 22)}" fill="#cbd5e1">${esc(v.label)}</text>
   <text x="72" y="88" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="${size}" font-weight="700" fill="${color}">${esc(v.value)}</text>
   <text x="72" y="${v.sub ? 108 : 116}" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" fill="#e2e8f0">${esc(v.unit ?? "")}</text>
   ${v.sub ? `<text x="72" y="128" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="17" fill="#94a3b8">${esc(v.sub)}</text>` : ""}
@@ -86,7 +89,7 @@ export function renderDial(v: KeyView): string {
   <rect width="200" height="100" fill="url(#g)"/>
   ${graph ? `<path d="${graph.area}" fill="${color}" fill-opacity="0.22"/><path d="${graph.line}" fill="none" stroke="${color}" stroke-opacity="0.55" stroke-width="2" stroke-linejoin="round"/>` : ""}
   <rect x="0" y="96" width="200" height="4" fill="${color}" opacity="0.8"/>
-  <text x="100" y="24" text-anchor="middle" font-family="${FONT}" font-size="20" fill="#cbd5e1">${esc(v.label)}</text>
+  <text x="100" y="24" text-anchor="middle" font-family="${FONT}" font-size="${labelSize(v.label, 20)}" fill="#cbd5e1">${esc(v.label)}</text>
   <text x="100" y="70" text-anchor="middle" font-family="${FONT}" font-size="${size}" font-weight="700" fill="${color}">${esc(v.value)}<tspan font-size="20" font-weight="400" fill="#e2e8f0" dx="4">${esc(v.unit ?? "")}</tspan></text>
   ${v.sub ? `<text x="100" y="90" text-anchor="middle" font-family="${FONT}" font-size="15" fill="#94a3b8">${esc(v.sub)}</text>` : ""}
 </svg>`;

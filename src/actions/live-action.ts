@@ -68,6 +68,16 @@ export abstract class LiveAction<S extends JsonObject> extends SingletonAction<S
     await this.advance(ev.action.id, ev.payload.ticks >= 0 ? 1 : -1);
   }
 
+  /**
+   * The view to draw right now. Default: offline view while the Quadro is not connected.
+   * Actions with other data sources (PC sensors) override this.
+   */
+  protected current(settings: S, id: string): KeyView {
+    return quadro.state === "ok" && quadro.status
+      ? this.view(settings, quadro.status, id)
+      : offlineView(this.defaultLabel(settings), quadro.error || "connecting");
+  }
+
   /** Hook for subclasses to drop per-key state. */
   protected onRemove(_id: string): void {}
 
@@ -79,10 +89,7 @@ export abstract class LiveAction<S extends JsonObject> extends SingletonAction<S
     const inst = this.instances.get(id);
     if (!inst) return;
     try {
-      const online = quadro.state === "ok" && quadro.status;
-      const view = online
-        ? this.view(inst.settings, quadro.status, id)
-        : offlineView(this.defaultLabel(inst.settings), quadro.error || "connecting");
+      const view = this.current(inst.settings, id);
       if (inst.isDial) {
         await (inst.action as DialAction<S>).setFeedback({ canvas: renderDial(view) });
       } else {

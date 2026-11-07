@@ -1,5 +1,6 @@
 import { graphSeries, type GraphSettings } from "./graph.ts";
 import { seriesKey } from "./history.ts";
+import { formatLhm, minSpanFor, type LhmSensor } from "./lhm.ts";
 import { COLORS, num, type KeyView } from "./render.ts";
 import type { QuadroStatus } from "./status.ts";
 
@@ -27,7 +28,22 @@ export type RotateSettings = GraphSettings & {
   /** comma separated names in channel order, e.g. "Loop out, Before CPU, After CPU" */
   tempLabels?: string;
   fanLabels?: string;
+  /** PC sensors (LibreHardwareMonitor ids) ticked in the checkbox list, shown after the Quadro values */
+  pcPick?: string[];
 };
+
+/** Key view of one PC sensor (shared by the rotation and the PC Sensor action). */
+export function pcSensorView(sensor: LhmSensor, s: GraphSettings, label?: string): KeyView {
+  return {
+    label: label || sensor.name,
+    value: formatLhm(sensor),
+    unit: sensor.unit,
+    sub: sensor.hardware.length > 14 ? `${sensor.hardware.slice(0, 13)}…` : sensor.hardware,
+    series: graphSeries(seriesKey.lhm(sensor.id), s),
+    minSpan: minSpanFor(sensor.type),
+    color: sensor.value === null ? COLORS.idle : COLORS.ok,
+  };
+}
 
 const list = (v: string | undefined): string[] => (v ?? "").split(",").map((x) => x.trim());
 
@@ -77,16 +93,23 @@ function legacyTokens(s: RotateSettings): string[] {
   return tokens;
 }
 
-/** All values to cycle through, in the configured order. Disconnected sensors are skipped. */
-export function buildItems(s: RotateSettings, st: QuadroStatus): KeyView[] {
+/**
+ * All values to cycle through, in the configured order. Disconnected sensors are skipped.
+ * `st` = latest Quadro report (undefined while offline), `pc` = LibreHardwareMonitor sensors (if enabled).
+ * The legacy checkboxes only apply when neither Quadro values nor PC sensors are selected.
+ */
+export function buildItems(s: RotateSettings, st?: QuadroStatus, pc?: LhmSensor[]): KeyView[] {
   const tempLabels = list(s.tempLabels);
   const fanLabels = list(s.fanLabels);
   const selected = tokensFrom(s.values, s.pick);
   const excluded = new Set(tokensFrom(s.exclude, s.skip));
-  const tokens = (selected.length > 0 ? selected : legacyTokens(s)).filter((t) => !excluded.has(t));
+  const pcIds = Array.isArray(s.pcPick) ? s.pcPick.filter((x): x is string => typeof x === "string" && x !== "") : [];
+  const base = selected.length > 0 ? selected : pcIds.length > 0 ? [] : legacyTokens(s);
+  const tokens = st ? base.filter((t) => !excluded.has(t)) : [];
   const items: KeyView[] = [];
 
   for (const token of tokens) {
+    if (!st) break;
     const m = /^(temp|virt|fan|pwm|power)(\d+)$/.exec(token);
     const n = m ? Number(m[2]) : 0;
     const fanName = fanLabels[n - 1] || `Fan ${n}`;
@@ -127,6 +150,13 @@ export function buildItems(s: RotateSettings, st: QuadroStatus): KeyView[] {
       case "volt":
         items.push({ label: "Input", value: st.inputVoltageV.toFixed(2), unit: "V", series: graphSeries(seriesKey.voltage, s), minSpan: 0.5, color: COLORS.ok });
         break;
+    }
+  }
+  if (pc && pcIds.length > 0) {
+    const byId = new Map(pc.map((x) => [x.id, x]));
+    for (const id of pcIds) {
+      const sensor = byId.get(id);
+      if (sensor && sensor.value !== null) items.push(pcSensorView(sensor, s));
     }
   }
   return items;

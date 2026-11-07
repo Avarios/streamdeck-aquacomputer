@@ -18,6 +18,12 @@
       <sdpi-checkbox-list setting="pick" columns="1" datasource="getValues" loading="Reading Quadro ..."></sdpi-checkbox-list>
     </sdpi-item>
   </details>
+  <details>
+    <summary>PC sensors (LibreHardwareMonitor) ▾</summary>
+    <sdpi-item label="">
+      <sdpi-checkbox-list setting="pcPick" columns="1" datasource="getPcSensorList" hot-reload loading="Reading LibreHardwareMonitor ..."></sdpi-checkbox-list>
+    </sdpi-item>
+  </details>
   <sdpi-item label="Excludes">
     <sdpi-textfield setting="exclude" placeholder="e.g. virt*,fan4,pwm*"></sdpi-textfield>
   </sdpi-item>
@@ -28,7 +34,7 @@
     </sdpi-item>
   </details>
   <sdpi-item label="">
-    <small>Text fields accept: temp1-4, virt1-16, fan1-4 (rpm), pwm1-4 (%), power1-4 (W), flow, volt. <b>*</b> = all; <b>fan*</b> = all fans. Ticked boxes and text are combined; excludes always win. If no value is selected, the options below apply.</small>
+    <small>Text fields accept: temp1-4, virt1-16, fan1-4 (rpm), pwm1-4 (%), power1-4 (W), flow, volt. <b>*</b> = all; <b>fan*</b> = all fans. Ticked boxes and text are combined; excludes always win. Ticked PC sensors are shown after the Quadro values. If neither values nor PC sensors are selected, the options below apply.</small>
   </sdpi-item>
   <sdpi-item label="Include">
     <sdpi-checkbox setting="noTemps" label="Hide temperatures"></sdpi-checkbox>
@@ -54,6 +60,18 @@
   <sdpi-item label="Graph">
     <sdpi-checkbox setting="noGraph" label="Hide background graph"></sdpi-checkbox>
   </sdpi-item>
+  <details>
+    <summary>LibreHardwareMonitor (CPU / GPU / mainboard sensors) ▾</summary>
+    <sdpi-item label="Enable">
+      <sdpi-checkbox setting="lhmEnabled" global label="Read PC sensors from LibreHardwareMonitor"></sdpi-checkbox>
+    </sdpi-item>
+    <sdpi-item label="Address">
+      <sdpi-textfield setting="lhmUrl" global placeholder="http://localhost:8085/data.json"></sdpi-textfield>
+    </sdpi-item>
+    <sdpi-item label="">
+      <small>Optional. Start <b>LibreHardwareMonitor as administrator</b> and enable <i>Options → Remote Web Server → Run</i> (default port 8085). This setting applies to all keys. The plugin only reads from the address above.</small>
+    </sdpi-item>
+  </details>
   <p style="opacity:.6;font-size:11px;margin:8px 12px">Unofficial plugin. Currently tested only with the Aquacomputer Quadro.</p>
 </body>
 </html>

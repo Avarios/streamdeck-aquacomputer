@@ -1,10 +1,29 @@
+import { formatLhm, type LhmSensor, type LhmState } from "./lhm.ts";
 import type { QuadroStatus } from "./status.ts";
 
 /** One entry of a property-inspector list (sdpi-components "datasource" item). */
 export type CatalogItem = { value: string; label: string; disabled: boolean };
+/** Option group of a dropdown (sdpi-components renders it as <optgroup>). */
+export type CatalogGroup = { label: string; children: CatalogItem[] };
+export type CatalogEntry = CatalogItem | CatalogGroup;
+
+/** What the property inspectors need to know about LibreHardwareMonitor. */
+export interface PcSource {
+  state: LhmState;
+  error: string;
+  sensors: LhmSensor[];
+}
 
 /** Event names the property inspectors request (see `datasource="..."` in ui/*.html). */
-export const DATASOURCE = { values: "getValues", sensors: "getSensors", fans: "getFans" } as const;
+export const DATASOURCE = {
+  values: "getValues",
+  sensors: "getSensors",
+  fans: "getFans",
+  /** PC sensors grouped by hardware (dropdown) */
+  pcSensors: "getPcSensors",
+  /** PC sensors as flat list (checkbox list of the rotation) */
+  pcSensorList: "getPcSensorList",
+} as const;
 
 /** Fans below this speed without any current draw are most likely not connected (tacho noise). */
 const IDLE_RPM = 200;
@@ -74,8 +93,38 @@ export function valueCatalog(st?: QuadroStatus): CatalogItem[] {
   return out;
 }
 
+const pcValue = (s: LhmSensor) => (s.value === null ? "no reading" : `${formatLhm(s)} ${s.unit}`.trim());
+
+/** Placeholder entry while LibreHardwareMonitor is off or unreachable, otherwise undefined. */
+function pcStatusItem(pc: PcSource | undefined): CatalogItem | undefined {
+  if (!pc || pc.state === "off") return item("", "LibreHardwareMonitor is switched off (option below)", true);
+  if (pc.state === "connecting") return item("", "Connecting to LibreHardwareMonitor ...", true);
+  if (pc.state === "error") return item("", `LibreHardwareMonitor not reachable (${pc.error})`, true);
+  return undefined;
+}
+
+/** PC sensors grouped by hardware, e.g. "AMD Ryzen 7 5800X" -> "Temperature: CPU Package – 45.3 °C". */
+export function pcSensorGroups(pc?: PcSource): CatalogEntry[] {
+  const status = pcStatusItem(pc);
+  if (status) return [status];
+  const groups = new Map<string, CatalogItem[]>();
+  for (const s of pc!.sensors) {
+    let g = groups.get(s.hardware);
+    if (!g) groups.set(s.hardware, (g = []));
+    g.push(item(s.id, `${s.type}: ${s.name} – ${pcValue(s)}`));
+  }
+  return [...groups].map(([label, children]) => ({ label: label || "Other", children }));
+}
+
+/** PC sensors as one flat list, e.g. "AMD Ryzen 7 5800X › Temperature: CPU Package – 45.3 °C". */
+export function pcSensorList(pc?: PcSource): CatalogItem[] {
+  const status = pcStatusItem(pc);
+  if (status) return [status];
+  return pc!.sensors.map((s) => item(s.id, `${s.hardware} › ${s.type}: ${s.name} – ${pcValue(s)}`));
+}
+
 /** Items for a property-inspector request, or undefined if the event is not ours. */
-export function catalogFor(event: string, st?: QuadroStatus): CatalogItem[] | undefined {
+export function catalogFor(event: string, st?: QuadroStatus, pc?: PcSource): CatalogEntry[] | undefined {
   switch (event) {
     case DATASOURCE.values:
       return valueCatalog(st);
@@ -83,6 +132,10 @@ export function catalogFor(event: string, st?: QuadroStatus): CatalogItem[] | un
       return temperatureSensors(st);
     case DATASOURCE.fans:
       return fanChannels(st);
+    case DATASOURCE.pcSensors:
+      return pcSensorGroups(pc);
+    case DATASOURCE.pcSensorList:
+      return pcSensorList(pc);
     default:
       return undefined;
   }

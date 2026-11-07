@@ -19,13 +19,49 @@ fan / pump speed, output percent, power draw and flow rate - with a history grap
 | **Temperature** | Sensor 1-4 or virtual sensor 1-16, in °C or °F | sensor, label, warn threshold (turns red), °F |
 | **Fan / Pump** | RPM, output % or power (W) of channel 1-4 | channel, view, label, "alarm below RPM". Key press cycles the view |
 | **Flow** | Flow rate in l/h | label, "alarm below l/h" |
-| **Rotation** | Cycles through selected values every N seconds | interval, include / exclude lists (`*`, `temp1,fan*,flow`), custom names |
+| **Rotation** | Cycles through selected values every N seconds | interval, include / exclude lists (`*`, `temp1,fan*,flow`), custom names, optional PC sensors |
+| **PC Sensor** | Any CPU / GPU / mainboard / drive sensor from LibreHardwareMonitor (optional, see below) | sensor, label, warn above / below |
 
 - Works on **keys** and on the **Stream Deck + touch strip / dials** (press, tap or turn to switch the value).
 - Translucent **history graph** behind the value (1 / 5 / 15 / 30 min; kept in memory, starts empty after a restart).
 - Dropdowns only list what is actually connected, with live readings next to each entry.
 - Shows `n/a` when no Quadro is found or no data arrives for 5 s, and reconnects automatically.
 - Read-only: the plugin never writes anything to the device.
+
+## PC sensors via LibreHardwareMonitor (optional)
+
+The Quadro only knows its own sensors. CPU and GPU temperatures can not be read by a normal Windows program
+without a kernel driver, so the plugin can **optionally** take them from
+[LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) (free, open source, not included).
+The option is **off by default**; without it the plugin works exactly as before.
+
+1. Install LibreHardwareMonitor and start it **as administrator** (otherwise CPU temperatures are missing).
+2. In LibreHardwareMonitor: **Options → Remote Web Server → Run** (default port 8085).
+   Optionally enable *Options → Run On Windows Startup*.
+3. In the Stream Deck app open a **PC Sensor** or **Rotation** key, expand *LibreHardwareMonitor* and tick
+   **Read PC sensors from LibreHardwareMonitor**. Change the address only if you use another port
+   (default `http://localhost:8085/data.json`). The setting applies to all keys.
+4. Pick a sensor in the **PC Sensor** dropdown (grouped by hardware, with live values), or tick PC sensors in the
+   Rotation's *PC sensors* list. They are shown after the Quadro values.
+
+While LibreHardwareMonitor is not reachable, PC Sensor keys show `n/a` (Quadro keys are not affected) and the
+plugin retries every 5 s. The PC sensor feature works without a Quadro, too.
+
+## Naming sensors and fans
+
+The plugin reads the hardware directly over USB. The Quadro only reports **numbers by position** - it does not
+tell the plugin what is connected to each port or what you called it in Aquasuite. Sensors and fans are therefore
+listed in the **order of the hardware connectors** (Temperature 1-4, Fan 1-4, plus virtual sensors 1-16), and you
+need to give them meaningful names yourself:
+
+- Use the **Label** field of each Temperature / Fan / Flow action, e.g. `Coolant`, `Pump`, `Radiator`.
+- In the **Rotation** action, enter names in the same order as the channels, comma-separated
+  (e.g. `Pump, MORA, Front` for fan 1, 2, 3).
+- Check once which physical port is which (for example by watching which value changes when the loop heats up or a
+  fan is spun up) and label accordingly. Names you set in Aquasuite are **not** transferred.
+
+Unconnected temperature sensors are greyed out in the dropdowns and fans without load are flagged
+"probably unconnected" to help you find the right channel.
 
 ## Requirements
 
@@ -59,9 +95,10 @@ Project layout:
 src/status.ts          report parser (pure, tested)
 src/quadro.ts          node-hid connection, auto-reconnect, "status"/"state" events
 src/history.ts         ring buffers (30 min at 1 sample/s) for the graphs
+src/lhm.ts             optional LibreHardwareMonitor client (data.json parser + poller)
 src/catalog.ts         lists for the property inspectors, built from the live report
 src/render.ts          SVG key rendering
-src/actions/*.ts       Temperature / Fan / Flow / Rotation actions
+src/actions/*.ts       Temperature / Fan / Flow / Rotation / PC Sensor actions
 com.avarios.aquars.sdPlugin/   manifest, property inspectors (ui/), icons (assets/)
 docs/PROTOCOL.md       what is known about the Quadro live report
 ```
@@ -70,7 +107,8 @@ docs/PROTOCOL.md       what is known about the Quadro live report
 
 The Quadro pushes a 220-byte HID input report (ID `0x01`) about once per second. The plugin reads it with
 [node-hid](https://github.com/node-hid/node-hid) and parses it - see [docs/PROTOCOL.md](docs/PROTOCOL.md).
-No network access, no telemetry.
+No telemetry. The only network access is the optional LibreHardwareMonitor option: when you switch it on, the
+plugin polls the configured address (default `http://localhost:8085/data.json`, i.e. your own PC) once per second.
 
 ## License
 

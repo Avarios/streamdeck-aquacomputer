@@ -1,3 +1,4 @@
+import type { LhmSensor } from "./lhm.ts";
 import type { QuadroStatus } from "./status.ts";
 
 /** Ring buffers of recent samples per series (one sample per status report, ~1/s). */
@@ -32,6 +33,8 @@ export const seriesKey = {
   virt: (n: number) => `virt:${n}`,
   flow: "flow",
   voltage: "voltage",
+  /** PC sensor from LibreHardwareMonitor, by its id */
+  lhm: (id: string) => `lhm:${id}`,
 } as const;
 
 export function recordStatus(h: History, st: QuadroStatus): void {
@@ -48,6 +51,11 @@ export function recordStatus(h: History, st: QuadroStatus): void {
   });
   h.push(seriesKey.flow, st.flowLPerH);
   h.push(seriesKey.voltage, st.inputVoltageV);
+}
+
+/** One sample per LibreHardwareMonitor poll (~1/s) for every sensor with a reading. */
+export function recordLhm(h: History, sensors: LhmSensor[]): void {
+  for (const s of sensors) if (s.value !== null) h.push(seriesKey.lhm(s.id), s.value);
 }
 
 export const history = new History();
