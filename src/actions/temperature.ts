@@ -4,6 +4,8 @@ import type { QuadroStatus } from "../status.ts";
 import { graphSeries, type GraphSettings } from "../graph.ts";
 import { seriesKey } from "../history.ts";
 import { deviceScope, type DeviceSettings } from "../devices.ts";
+import { lhm } from "../lhm.ts";
+import { pcSensorView } from "../rotation.ts";
 import { LiveAction } from "./live-action.ts";
 
 type Settings = GraphSettings & DeviceSettings & { sensor?: string; label?: string; warn?: string; fahrenheit?: boolean };
@@ -19,6 +21,18 @@ export class TemperatureAction extends LiveAction<Settings> {
   protected defaultLabel(s: Settings): string {
     const { virtual, n } = this.sensorOf(s);
     return s.label || (virtual ? `Virtual ${n}` : `Temp ${n}`);
+  }
+
+  /** sensor "lhm:<id>" = temperature of LibreHardwareMonitor (independent of the Quadro) */
+  protected override current(s: Settings, id: string): KeyView {
+    if (!s.sensor?.startsWith("lhm:")) return super.current(s, id);
+    const label = s.label || lhm.get(s.sensor.slice(4))?.name || "PC Temp";
+    const sensor = lhm.get(s.sensor.slice(4));
+    if (!sensor) return { label, value: "--", sub: lhm.state === "ok" ? "not found" : "enable LHM", color: COLORS.idle };
+    const view = pcSensorView(sensor, s, s.label);
+    const warn = num(s.warn);
+    if (warn !== undefined && sensor.value !== null && sensor.value >= warn) view.color = COLORS.warn;
+    return view;
   }
 
   protected view(s: Settings, st: QuadroStatus | undefined): KeyView {

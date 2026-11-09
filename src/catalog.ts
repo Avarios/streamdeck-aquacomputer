@@ -45,7 +45,7 @@ function fanHint(st: QuadroStatus | undefined, i: number): string {
  * Without a status all sensors are listed; with a status, unused virtual sensors are hidden
  * and unconnected Quadro sensors are greyed out. Labels carry the live reading.
  */
-export function temperatureSensors(st?: QuadroStatus): CatalogItem[] {
+export function temperatureSensors(st?: QuadroStatus, pc?: PcSource): CatalogItem[] {
   const out: CatalogItem[] = [];
   for (const i of n(4)) {
     const t = st?.temps[i - 1];
@@ -55,6 +55,10 @@ export function temperatureSensors(st?: QuadroStatus): CatalogItem[] {
     const t = st?.virtualTemps[i - 1];
     if (st && t == null) continue;
     out.push(item(`v${i}`, st && t != null ? `Virtual ${i} – ${fmtT(t)}` : `Virtual ${i}`));
+  }
+  // LibreHardwareMonitor temperatures (value "lhm:<sensor id>")
+  if (pc?.state === "ok") {
+    for (const s of pc.sensors) if (s.type === "Temperature") out.push(item(`lhm:${s.id}`, `PC ${s.hardware} › ${s.name} – ${pcValue(s)}`));
   }
   return out;
 }
@@ -154,7 +158,7 @@ export function catalogFor(
     case DATASOURCE.values:
       return valueCatalog(st);
     case DATASOURCE.sensors:
-      return temperatureSensors(st);
+      return temperatureSensors(st, pc);
     case DATASOURCE.fans:
       return fanChannels(st);
     case DATASOURCE.devices:
