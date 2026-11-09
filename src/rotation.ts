@@ -167,8 +167,8 @@ export function buildItems(s: RotateSettings, st?: QuadroStatus, pc?: LhmSensor[
 /** Which item is shown: advances every `intervalS` seconds; `offset` is added by key presses. */
 export function pickIndex(nowMs: number, startMs: number, offset: number, intervalS: number, count: number): number {
   if (count <= 0) return 0;
-  const steps = Math.floor(Math.max(0, nowMs - startMs) / (intervalS * 1000));
+  const steps = intervalS > 0 ? Math.floor(Math.max(0, nowMs - startMs) / (intervalS * 1000)) : 0; // 0 = manual only
   return (((steps + offset) % count) + count) % count;
 }
 
-export const intervalOf = (s: RotateSettings): number => Math.max(1, num(s.interval, 5) ?? 5);
+export const intervalOf = (s: RotateSettings): number => Math.max(0, num(s.interval, 5) ?? 5);
