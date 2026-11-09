@@ -1,6 +1,6 @@
 {
   "name": "streamdeck-quadro",
-  "version": "1.0.5",
+  "version": "1.0.4",
   "private": true,
   "description": "Unofficial Elgato Stream Deck plugin showing live values of the Aquacomputer Quadro (tested only with the Quadro)",
   "license": "Apache-2.0",

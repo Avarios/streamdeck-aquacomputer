@@ -4,19 +4,14 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/), versions follow [SemVer](https://semver.org/)
 (the manifest uses the four-part form `MAJOR.MINOR.PATCH.0`).
 
-## [1.0.5] - 2026-11-09
-
-### Added
-- **Rotate:** interval `0` switches values only on key press.
-- LibreHardwareMonitor enable option and address (default `http://localhost:8085/data.json`) in the Temperature panel.
-
-### Changed
-- Temperature key lists only real temperatures from LibreHardwareMonitor (no TjMax distances), with hints when LHM is off or unreachable.
-
 ## [1.0.4] - 2026-11-09
 
 ### Added
-- **Temperature key:** LibreHardwareMonitor temperatures can be picked in the *Sensor* dropdown.
+- **Temperature key:** the *Sensor* dropdown now filters for temperatures and also lists LibreHardwareMonitor
+  temperature sensors (only real temperatures, no TjMax distances).
+- **LibreHardwareMonitor support** in the Temperature panel: enable option and address
+  (default `http://localhost:8085/data.json`), with hints when LHM is off or unreachable.
+- **Rotate:** interval `0` switches values only on key press.
 
 ## [1.0.3] - 2026-11-07
 
