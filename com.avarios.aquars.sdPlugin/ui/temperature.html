@@ -3,6 +3,7 @@
 <head lang="en">
   <meta charset="utf-8" />
   <script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+  <style>details{margin:6px 0 6px 0} summary{cursor:pointer;padding:4px 8px;color:#d8d8d8}</style>
 </head>
 <body>
   <sdpi-item label="Quadro">
@@ -29,6 +30,18 @@
   <sdpi-item label="Graph">
     <sdpi-checkbox setting="noGraph" label="Hide background graph"></sdpi-checkbox>
   </sdpi-item>
+  <details>
+    <summary>LibreHardwareMonitor (CPU / GPU / mainboard sensors) ▾</summary>
+    <sdpi-item label="Enable">
+      <sdpi-checkbox setting="lhmEnabled" global label="Read PC sensors from LibreHardwareMonitor"></sdpi-checkbox>
+    </sdpi-item>
+    <sdpi-item label="Address">
+      <sdpi-textfield setting="lhmUrl" global placeholder="http://localhost:8085/data.json"></sdpi-textfield>
+    </sdpi-item>
+    <sdpi-item label="">
+      <small>Optional. Start <b>LibreHardwareMonitor as administrator</b> and enable <i>Options → Remote Web Server → Run</i> (default port 8085). This setting applies to all keys. The plugin only reads from the address above.</small>
+    </sdpi-item>
+  </details>
   <p style="opacity:.6;font-size:11px;margin:8px 12px">Unofficial plugin. Currently tested only with the Aquacomputer Quadro.</p>
 </body>
 </html>

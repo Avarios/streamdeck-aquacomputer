@@ -59,7 +59,8 @@ export function temperatureSensors(st?: QuadroStatus, pc?: PcSource): CatalogIte
   // LibreHardwareMonitor temperatures (value "lhm:<sensor id>")
   if (pc?.state === "ok") {
     for (const s of pc.sensors) if (s.type === "Temperature") out.push(item(`lhm:${s.id}`, `PC ${s.hardware} › ${s.name} – ${pcValue(s)}`));
-  }
+  } else if (pc?.state === "off") out.push(item("", "PC temperatures: enable LibreHardwareMonitor (option below)", true));
+  else if (pc?.state === "error") out.push(item("", `PC temperatures: LibreHardwareMonitor not reachable (${pc.error})`, true));
   return out;
 }
 
