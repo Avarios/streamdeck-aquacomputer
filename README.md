@@ -16,10 +16,10 @@ fan / pump speed, output percent, power draw and flow rate - with a history grap
 
 | Action | Shows | Settings |
 |---|---|---|
-| **Temperature** | Sensor 1-4 or virtual sensor 1-16, in °C or °F | sensor, label, warn threshold (turns red), °F |
+| **Temperature** | Sensor 1-4 or virtual sensor 1-16, or (optional) a real temperature from LibreHardwareMonitor, in °C or °F | sensor, label, warn threshold (turns red), °F |
 | **Fan / Pump** | RPM, output % or power (W) of channel 1-4 | channel, view, label, "alarm below RPM". Key press cycles the view |
 | **Flow** | Flow rate in l/h | label, "alarm below l/h" |
-| **Rotation** | Cycles through selected values every N seconds | interval, include / exclude lists (`*`, `temp1,fan*,flow`), custom names, optional PC sensors |
+| **Rotation** | Cycles through selected values every N seconds | interval in seconds (`0` = switch only on key press), include / exclude lists (`*`, `temp1,fan*,flow`), custom names, optional PC sensors |
 | **PC Sensor** | Any CPU / GPU / mainboard / drive sensor from LibreHardwareMonitor (optional, see below) | sensor, label, warn above / below |
 
 - Works on **keys** and on the **Stream Deck + touch strip / dials** (press, tap or turn to switch the value).
@@ -39,10 +39,10 @@ The option is **off by default**; without it the plugin works exactly as before.
 1. Install LibreHardwareMonitor and start it **as administrator** (otherwise CPU temperatures are missing).
 2. In LibreHardwareMonitor: **Options → Remote Web Server → Run** (default port 8085).
    Optionally enable *Options → Run On Windows Startup*.
-3. In the Stream Deck app open a **PC Sensor** or **Rotation** key, expand *LibreHardwareMonitor* and tick
+3. In the Stream Deck app open a **Temperature**, **PC Sensor** or **Rotation** key, expand *LibreHardwareMonitor* and tick
    **Read PC sensors from LibreHardwareMonitor**. Change the address only if you use another port
    (default `http://localhost:8085/data.json`). The setting applies to all keys.
-4. Pick a sensor in the **PC Sensor** dropdown (grouped by hardware, with live values), or tick PC sensors in the
+4. Pick a sensor in the **PC Sensor** dropdown (grouped by hardware, with live values), pick a CPU / GPU temperature in the **Temperature** dropdown (only real temperatures, no TjMax distances), or tick PC sensors in the
    Rotation's *PC sensors* list. They are shown after the Quadro values.
 
 While LibreHardwareMonitor is not reachable, PC Sensor keys show `n/a` (Quadro keys are not affected) and the
@@ -100,7 +100,12 @@ npm run watch      # rebuild on change
 npm test           # parser / history / rotation tests
 npm run validate   # Elgato manifest validation
 npm run pack       # create the installable .streamDeckPlugin
+npm run typecheck  # tsc --noEmit
+npm run release    # typecheck + test + build + validate + pack
 ```
+
+CI (`.github/workflows/ci.yml`) runs typecheck, tests, build and validate; `release.yml` builds the release package.
+See [CHANGELOG.md](CHANGELOG.md) for version history, [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
 
 Project layout:
 
@@ -108,10 +113,12 @@ Project layout:
 src/status.ts          report parser (pure, tested)
 src/quadro.ts          finds all Quadros, one node-hid connection each, auto-reconnect
 src/devices.ts         device selection by serial number (pure, tested)
+src/graph.ts           graph window / series settings shared by the actions
 src/history.ts         ring buffers (30 min at 1 sample/s) for the graphs
 src/lhm.ts             optional LibreHardwareMonitor client (data.json parser + poller)
 src/catalog.ts         lists for the property inspectors, built from the live report
 src/render.ts          SVG key rendering
+src/rotation.ts        value list selection and PC sensor view for the Rotation action
 src/actions/*.ts       Temperature / Fan / Flow / Rotation / PC Sensor actions
 com.avarios.aquars.sdPlugin/   manifest, property inspectors (ui/), icons (assets/)
 docs/PROTOCOL.md       what is known about the Quadro live report
