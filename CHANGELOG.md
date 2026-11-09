@@ -4,6 +4,11 @@ All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/), versions follow [SemVer](https://semver.org/)
 (the manifest uses the four-part form `MAJOR.MINOR.PATCH.0`).
 
+## [1.0.4] - 2026-11-09
+
+### Added
+- **Temperature key:** LibreHardwareMonitor temperatures can be picked in the *Sensor* dropdown.
+
 ## [1.0.3] - 2026-11-07
 
 ### Added
